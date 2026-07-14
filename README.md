@@ -65,7 +65,7 @@ On Linux compilation process is mostly the same, with an exceptions for some win
 
 ## Troubleshooting
 
-#### Check [Issues](https://github.com/kafelbb/oxygenpad/issues) page, and if there is no post talking about your problem, then:
+#### Check [Issues](https://github.com/kafelbb/oxygenpad/issues) page, and if there is no post talking about the same problem, then:
 
 1. Launch `oxygenpad.exe` via `cmd.exe`
 1. Replicate the issue
