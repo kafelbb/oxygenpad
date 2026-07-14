@@ -3,39 +3,44 @@
 A lightweight FOSS alternative to Soundpad
 <table>
   <tr>
-    <td><img src="repo/scr1.png" alt="Screenshot 1" width="100%"></td>
-    <td><img src="repo/scr2.png" alt="Screenshot 2" width="100%"></td>
+    <td><img src="src/repo/screenshot1.png" alt="Screenshot 1" width="100%"></td>
+    <td><img src="src/repo/scr2.png" alt="Screenshot 2" width="100%"></td>
   </tr>
 </table>
 
 ## Installation
 ### On Windows:
 #### To install oxygenpad you will need to:
-- Download and install latest version of [VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
+- Download and install the latest version of [VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
 - Configure VB-AUDIO Voicemeeter
-- Download latest release of the oxygenpad
-- Unzip it in any directory
+- Download the latest release of the oxygenpad
+- Unzip it into any directory
 #### Step 1. Getting VB-AUDIO Voicemeeter 
 1. Go to [VB-AUDIO Voicemeeter download page](https://vb-audio.com/Voicemeeter/)
 2. Download .zip archive
-3. Unpack archive
+3. Unpack the archive
 1. Run `voicemeetersetup.exe`
 #### Step 2. Configuring VB-AUDIO Voicemeeter
 1. Open `Voicmeeter x64` from Start Menu
-1. Set Stereo Input 2 as your primary microphone ![boo](src/repo/voicemeeter1.png)
-2. Press menu
+1. Set `Stereo Input 2` as your primary microphone ![boo](src/repo/voicemeeter1.png)
+2. Open menu
 3. Tick these options<br>![boo](src/repo/voicemeeter2.png)
-4. Set your mic in desired app (e.g Discord, TF2, Steam) to be `Voicemeeter Out B1`
+4. Set your mic in desired app (e.g., Discord, TF2, Steam) to be `Voicemeeter Out B1`
 #### Step 3. Downloading the app
 1. Go to [Releases](https://github.com/kafelbb/oxygenpad/releases) page.
 2. Grab .zip (or .7z) archive from the latest release
 3. Unzip it into any folder (e.g `Desktop/apps/`)
 4. Create shortcut to prog and move it to the desktop (or Start Menu)
-1. 
+
 ### On Linux:
 Currently there is zero Linux support. But I am planning to add it. I will try to look forward Pulsemeeter.
 
 ## Usage
+### Opening GUI (oxygenpad control panel)
+1. Go to taskbar
+1. Search for oxygenpad icon in tray
+1. Click on it
+1. Click on "gui" button
 ### Adding your sounds
 1. Scroll down and click **add a new one** button ![boo](src/repo/screen1.png)
 1. Select your `.wav` or `.mp3` or `.flac` music file
