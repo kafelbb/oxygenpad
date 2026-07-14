@@ -8,34 +8,6 @@
   </tr>
 </table>
 
-## Установка
-### На Windows:
-#### Чтобы установить oxygenpad, надо:
-- Скачать и установить последнюю версию [VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
-- Настроить её
-- Скачать последний релиз oxygenpad
-- Распаковать архив с релизом в любую папку
-#### 1. Установка VB-AUDIO Voicemeeter 
-1. Зайди на [страницу downloads VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
-2. Скачай .zip архив
-3. Распакуй его
-1. Запусти `voicemeetersetup.exe`
-#### 2. Настройка VB-AUDIO Voicemeeter
-1. Запусти `Voicmeeter x64` из меню Пуск
-1. Установи свой основной микро как `Stereo Input 2` ![boo](../repo/voicemeeter1.png)
-2. Нажми на "Menu"
-3. Поставь эти галочки <br>![boo](../repo/voicemeeter2.png)
-4. Настрой в нужной проге (н-р, Discord, TF2, Steam) основной микрофон как `Voicemeeter Out B1`
-#### 3. Установка oxygenpad
-1. Скачай со [страницы Releases](https://github.com/kafelbb/oxygenpad/releases) последний релиз.
-3. Распакуй его в любую папку (e.g `Desktop/apps/`)
-4. Сделай ярлык на прогу и перемести его на Рабочий Стол (или меню Пуск)
-1. Запусти oxygenpad
-
-### На Linux:
-<!--не-->
-Пока что прога не поддерживает UNIX системы даже на уровне кода. Так же делает и Voicemeeter, который поддерживает только винду. Но я планирую добавить поддержку пингвина уже в скором времени.
-
 ## Использование
 ### Открытие GUI (панели управления oxygenpad)
 1. Зайди в таскбар
@@ -65,6 +37,35 @@
 Вот тут пока что все сложно. Пока я не добавлю поддержку пингвина, тебе придется вручную искать Win32-специфичные куски кода и редачить их под UNIX. А так компиляция идет примерно тем же путем
 
 
+
+## Установка
+### На Windows:
+#### Чтобы установить oxygenpad, надо:
+- Скачать и установить последнюю версию [VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
+- Настроить её
+- Скачать последний релиз oxygenpad
+- Распаковать архив с релизом в любую папку
+#### 1. Установка VB-AUDIO Voicemeeter 
+1. Зайди на [страницу downloads VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
+2. Скачай .zip архив
+3. Распакуй его
+1. Запусти `voicemeetersetup.exe`
+#### 2. Настройка VB-AUDIO Voicemeeter
+1. Запусти `Voicmeeter x64` из меню Пуск
+1. Установи свой основной микро как `Stereo Input 2` ![boo](../repo/voicemeeter1.png)
+2. Нажми на "Menu"
+3. Поставь эти галочки <br>![boo](../repo/voicemeeter2.png)
+4. Настрой в нужной проге (н-р, Discord, TF2, Steam) основной микрофон как `Voicemeeter Out B1`
+#### 3. Установка oxygenpad
+1. Скачай со [страницы Releases](https://github.com/kafelbb/oxygenpad/releases) последний релиз.
+3. Распакуй его в любую папку (e.g `Desktop/apps/`)
+4. Сделай ярлык на прогу и перемести его на Рабочий Стол (или меню Пуск)
+1. Запусти oxygenpad
+
+### На Linux:
+<!--не-->
+Пока что прога не поддерживает UNIX системы даже на уровне кода. Так же делает и Voicemeeter, который поддерживает только винду. Но я планирую добавить поддержку пингвина уже в скором времени.
+
 ## Баги
 
 #### Попробуй найти баг схожий с твоим на [странице Issues](https://github.com/kafelbb/oxygenpad/issues), и если подобного ему нет, то:
@@ -75,3 +76,18 @@
 1. Вставь их в описании issue
 1. (необязательно, но еще-как рекомендуется) добавить скриншот с багом
 1. Написать в этом же описании issue свою ОСь, ее версию и номер сборки
+
+---
+
+## Лицензия
+
+Этот проект распространяется под лицензией **GNU General Public License v3.0 (GPL-3.0)**. Подробную информацию можно найти в файле [LICENSE](../../LICENSE).
+
+### Использованные сторонние библиотеки
+**oxygenpad** использует следующие сторонние библиотеки:
+* **SFML** - [zlib/png license](https://github.com/sfml/sfml?tab=Zlib-1-ov-file).
+* **miniaudio** - Под выбор [Public Domain](https://unlicense.org)/[MIT license](https://opensource.org/license/mit).
+* **portable-file-dialogs (pfd)**  [WTFPL](https://www.wtfpl.net/).
+* **tray.h** -  [MIT license](https://opensource.org/license/mit).
+
+Лицензии всех этих библиотек являются разрешительными и **полностью совместимы** с GNU GPL v3.

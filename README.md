@@ -8,6 +8,24 @@ A lightweight FOSS alternative to Soundpad
   </tr>
 </table>
 
+## Usage
+### Opening GUI (oxygenpad control panel)
+1. Go to taskbar
+1. Search for oxygenpad icon in tray
+1. Click on it
+1. Click on "gui" button
+### Adding your sounds
+1. Scroll down and click the **add a new one** button ![boo](src/repo/screen1.png)
+1. Select your `.wav` or `.mp3` or `.flac` audio file
+1. Edit keybind for it
+ > *to be exact:* this copies chosen file into oxygenpad's `res/sounds/` directory
+### Editing keybinds
+1. Left-click on desired sound
+1. Press your desired keys
+### Deleting sounds
+1. Right-click on desired sound
+> *to be exact:* this does not delete the physical file from your drive; it just simply deletes it from `sounds.map`
+
 ## Installation
 ### On Windows:
 #### To install oxygenpad you will need to:
@@ -35,23 +53,7 @@ A lightweight FOSS alternative to Soundpad
 ### On Linux:
 Currently there is zero Linux support. But I am planning to add it in the future. I will look into Pulsemeeter support.
 
-## Usage
-### Opening GUI (oxygenpad control panel)
-1. Go to taskbar
-1. Search for oxygenpad icon in tray
-1. Click on it
-1. Click on "gui" button
-### Adding your sounds
-1. Scroll down and click the **add a new one** button ![boo](src/repo/screen1.png)
-1. Select your `.wav` or `.mp3` or `.flac` audio file
-1. Edit keybind for it
- > *to be exact:* this copies chosen file into oxygenpad's `res/sounds/` directory
-### Editing keybinds
-1. Left-click on desired sound
-1. Press your desired keys
-### Deleting sounds
-1. Right-click on desired sound
-> *to be exact:* this does not delete the physical file from your drive; it just simply deletes it from `sounds.map`
+
 ## Compiling
 ### If you are a masochist, then:
 #### On Windows:
@@ -73,3 +75,17 @@ On Linux compilation process is mostly the same, with an exceptions for some win
 1. Paste it in Issue description
 1. (optionally, but recommended) add a screenshot of your problem
 1. Type out your OS version and build number and your hardware specs
+
+_ __
+## License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)** - see the [LICENSE](LICENSE) file for details.
+
+### Third-Party Licenses
+**oxygenpad** uses the following libs:
+* **SFML** - Licensed under the [zlib/png license](https://github.com/sfml/sfml?tab=Zlib-1-ov-file).
+* **miniaudio** - Choice of [Public Domain](https://unlicense.org)/[MIT license](https://opensource.org/license/mit).
+* **portable-file-dialogs (pfd)** - Licensed under the [WTFPL](https://www.wtfpl.net/).
+* **tray.h** - Licensed under the [MIT license](https://opensource.org/license/mit).
+
+All of these third-party licenses are permissive and **fully compatible** with GNU GPL v3.
