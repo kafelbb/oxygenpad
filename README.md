@@ -8,6 +8,8 @@ A lightweight FOSS alternative to Soundpad
   </tr>
 </table>
 
+## If you are lazy like me, you can watch [my guide to the installation and usage of oxygenpad](https://www.youtube.com/watch?v=0gOVyRFAF88)
+
 ## Usage
 ### Opening GUI (oxygenpad control panel)
 1. Go to taskbar
