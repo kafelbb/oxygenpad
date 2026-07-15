@@ -8,6 +8,8 @@
   </tr>
 </table>
 
+## Если лень читать readme, то вот [вот мой тутор на установку и настройку oxygenpad](https://www.youtube.com/watch?v=0gOVyRFAF88)
+
 ## Использование
 ### Открытие GUI (панели управления oxygenpad)
 1. Зайди в таскбар
