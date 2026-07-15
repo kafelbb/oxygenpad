@@ -71,10 +71,23 @@ void simulate_key_event(sf::Keyboard::Key sf_key, bool is_down) {
     int vk = sf_key_to_vk(sf_key);
     if (vk == 0) return;
 
+    UINT scan_code = MapVirtualKey(vk, MAPVK_VK_TO_VSC);
+
     INPUT input = { 0 };
     input.type = INPUT_KEYBOARD;
-    input.ki.wVk = static_cast<WORD>(vk);
-    input.ki.dwFlags = is_down ? 0 : KEYEVENTF_KEYUP;
+    input.ki.wVk = 0; // Игры часто игнорируют wVk, если установлен флаг SCANCODE
+    input.ki.wScan = static_cast<WORD>(scan_code);
+
+    // Обязательно указываем флаг KEYEVENTF_SCANCODE
+    input.ki.dwFlags = KEYEVENTF_SCANCODE;
+    if (!is_down) {
+        input.ki.dwFlags |= KEYEVENTF_KEYUP;
+    }
+
+    // Для некоторых клавиш (стрелки, Numpad, правый Ctrl/Alt) нужен флаг расширенной клавиши
+    if (vk == VK_RMENU || vk == VK_RCONTROL || vk == VK_LEFT || vk == VK_UP || vk == VK_RIGHT || vk == VK_DOWN) {
+        input.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
+    }
 
     SendInput(1, &input, sizeof(INPUT));
 }
@@ -648,6 +661,9 @@ void init_binds_sprites(sf::Font& font) {
         index += 1;
     }
 }
+
+sf::Font mont_sb;
+
 void gui_thread_worker() {
     float scroll_target = 0;
     float curr_scroll = 300;
@@ -666,7 +682,6 @@ void gui_thread_worker() {
     sf::Sprite hud2_s(hud2);
     hud2_s.setPosition(0, hud2_y);
 
-    sf::Font mont_sb;
     mont_sb.loadFromFile("res/fonts/mont_sb.ttf");
 
     bool win_debounce = false;
