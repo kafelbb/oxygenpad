@@ -75,16 +75,14 @@ void simulate_key_event(sf::Keyboard::Key sf_key, bool is_down) {
 
     INPUT input = { 0 };
     input.type = INPUT_KEYBOARD;
-    input.ki.wVk = 0; // Игры часто игнорируют wVk, если установлен флаг SCANCODE
+    input.ki.wVk = 0;
     input.ki.wScan = static_cast<WORD>(scan_code);
 
-    // Обязательно указываем флаг KEYEVENTF_SCANCODE
     input.ki.dwFlags = KEYEVENTF_SCANCODE;
     if (!is_down) {
         input.ki.dwFlags |= KEYEVENTF_KEYUP;
     }
 
-    // Для некоторых клавиш (стрелки, Numpad, правый Ctrl/Alt) нужен флаг расширенной клавиши
     if (vk == VK_RMENU || vk == VK_RCONTROL || vk == VK_LEFT || vk == VK_UP || vk == VK_RIGHT || vk == VK_DOWN) {
         input.ki.dwFlags |= KEYEVENTF_EXTENDEDKEY;
     }
