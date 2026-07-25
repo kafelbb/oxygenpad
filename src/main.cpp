@@ -17,8 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-//oxygenpad a001 by kafel
-//9.07.2026 | 14.07.2026
+//oxygenpad a002 by kafel
+//9.07.2026 | 26.07.2026
+//  made    |  updated
 
 #include <iostream>
 #include <string>
@@ -30,17 +31,19 @@
 #include <fstream>
 #include <sstream>
 #include <atomic>
+#include <cstdlib>
 
 using namespace std::string_literals;
-
 
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics.hpp>
 
-
 #include "logger.h"
 #include "ui.h"
+#include "update.h"
+#include "resources.h"
 
+namespace fs = std::filesystem;
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -101,9 +104,8 @@ void simulate_key_event(sf::Keyboard::Key sf_key, bool is_down) {}
 #define TRAY_WINAPI 1
 #include "libs/tray.h"
 
-constexpr const char* PROG_VER = "a001";
 
-namespace fs = std::filesystem;
+constexpr const char* PROG_VER = "a001";
 
 bool core_enabled = true;
 bool core_vc_enabled = true;
@@ -131,6 +133,7 @@ ma_audio_buffer g_buffer2;
 
 ma_device_id* voicemtr_id;
 
+ma_engine g_audio_engine;
 ma_context g_context;
 
 void callback1(ma_device* d, void* out, const void* input, ma_uint32 frm_count) {
@@ -162,6 +165,52 @@ void callback2(ma_device* d, void* out, const void* input, ma_uint32 frm_count) 
     }
     (void)input;
 }
+
+int play_resource_to_default_device(ma_context* context, const unsigned char* resource_data, unsigned int resource_size) {
+    ma_decoder decoder;
+    ma_decoder_config dec_cfg = ma_decoder_config_init(ma_format_f32, 2, 0);
+
+    ma_result result = ma_decoder_init_memory(resource_data, resource_size, &dec_cfg, &decoder);
+    if (result != MA_SUCCESS) {
+        log_err("audio", "failed to init decoder from mem");
+        return 1;
+    }
+
+    ma_uint32 fileSampleRate = decoder.outputSampleRate;
+    ma_uint64 total_frames = 0;
+    ma_decoder_get_length_in_pcm_frames(&decoder, &total_frames);
+
+    auto sound = std::make_shared<snd>();
+    sound->audio_data.resize(total_frames * 2);
+
+    ma_decoder_read_pcm_frames(&decoder, sound->audio_data.data(), total_frames, NULL);
+    ma_decoder_uninit(&decoder);
+
+    ma_audio_buffer_config buf_cfg = ma_audio_buffer_config_init(ma_format_f32, 2, total_frames, sound->audio_data.data(), NULL);
+    ma_audio_buffer_init(&buf_cfg, &sound->buffer1);
+
+    MA_ZERO_OBJECT(&sound->buffer2);
+    MA_ZERO_OBJECT(&sound->device2);
+
+    ma_device_config deviceConfig1 = ma_device_config_init(ma_device_type_playback);
+    deviceConfig1.playback.pDeviceID = NULL;
+    deviceConfig1.playback.format = ma_format_f32;
+    deviceConfig1.playback.channels = 2;
+    deviceConfig1.sampleRate = fileSampleRate;
+    deviceConfig1.dataCallback = callback1;
+    deviceConfig1.pUserData = &sound->buffer1;
+
+    if (ma_device_init(context, &deviceConfig1, &sound->device1) != MA_SUCCESS) {
+        log_err("audio", "failed to open default device");
+        return 1;
+    }
+
+    ma_device_start(&sound->device1);
+
+    snds.push_back(sound);
+    return 0;
+}
+
 
 int play_sound_to_both_devices(ma_context* context, const std::string& path) {
     if (voicemtr_id == NULL) {
@@ -243,10 +292,6 @@ void stop_last_sound() {
 
 void tray_stop(struct tray_menu* item) {
     stop_last_sound();
-    (void)item;
-}
-void tray_play(struct tray_menu* item) {
-    play_sound_to_both_devices(&g_context, "res/sounds/sound.wav");
     (void)item;
 }
 void tray_quit(struct tray_menu* item) {
@@ -354,8 +399,39 @@ std::vector<std::string> split_string(const std::string& s, char delimiter) {
     return tokens;
 }
 
+fs::path get_app_data_path() {
+    fs::path base_path;
+
+#if defined(_WIN32)
+    const char* appdata = std::getenv("APPDATA");
+    if (appdata) {
+        base_path = fs::path(appdata);
+    }
+    else {
+        base_path = fs::path(std::getenv("USERPROFILE")) / "AppData" / "Roaming";
+    }
+#elif defined(__APPLE__)
+    const char* home = std::getenv("HOME");
+    if (home) {
+        base_path = fs::path(home) / "Library" / "Application Support";
+    }
+#else
+    const char* xdg_config = std::getenv("XDG_CONFIG_HOME");
+    if (xdg_config) {
+        base_path = fs::path(xdg_config);
+    }
+    else {
+        const char* home = std::getenv("HOME");
+        base_path = home ? (fs::path(home) / ".config") : fs::current_path();
+    }
+#endif
+
+    return base_path / "kafelbb" / "oxygenpad";
+}
+
 void save_soundmap() {
-    std::ofstream out("res/sounds.map", std::ios::out | std::ios::trunc);
+    fs::create_directories(get_app_data_path().string());
+    std::ofstream out(get_app_data_path() / "sounds.map", std::ios::out | std::ios::trunc);
 
     if (out.is_open()) {
         out << PROG_VER << "\n";
@@ -377,10 +453,10 @@ void save_soundmap() {
 }
 
 void check_for_soundmap() {
-    fs::create_directories("res/sounds");
-    if (!fs::exists("res/sounds.map")) {
+    fs::create_directories(get_app_data_path());
+    if (!fs::exists(get_app_data_path() / "sounds.map")) {
         log_info("startup", "can't find sounds.map creating a new one");
-        std::ofstream out("res/sounds.map");
+        std::ofstream out(get_app_data_path() / "sounds.map");
         if (out.is_open()) {
             out << PROG_VER << "\n";
             out << "path=toggle\n";
@@ -406,9 +482,10 @@ void check_for_soundmap() {
         log_info("startup", "found sounds.map");
     }
 
-    std::ifstream f("res/sounds.map");
+    std::ifstream f(get_app_data_path() / "sounds.map");
     std::string line;
     std::string npath;
+    std::string nname;
     std::string nbindss;
     std::vector<sf::Keyboard::Key> nbinds;
 
@@ -421,6 +498,7 @@ void check_for_soundmap() {
             n.binds = nbinds;
             n.path = npath;
             n.binds_str = nbindss;
+            n.name = nname;
             binds.push_back(n);
 
             log_info("startup - bindmap parser", "got " + std::to_string(nbinds.size()) + " keybinds for " + npath);
@@ -435,6 +513,13 @@ void check_for_soundmap() {
         }
         if (line.find("path=") == 0) {
             npath = line.substr(5);
+            if (npath != "stop" && npath != "vc toggle" && npath != "toggle" && npath != "voice chat") {
+                nname = fs::path(npath).filename().string();
+                std::cout << nname << std::endl;
+            }
+            else {
+                nname = npath;
+            }
             continue;
         }
         if (line.find("bind=") == 0) {
@@ -492,175 +577,29 @@ void add_new_sound() {
     fs::path src_path(selection[0]);
 #endif
 
-    std::u8string u8_filename = src_path.filename().u8string();
-    std::string filename(u8_filename.begin(), u8_filename.end());
+    std::cout << src_path.string();
+    sound_bind n;
+    n.path = src_path.string();
+    n.binds_str = "None";
+    n.debounce = false;
+    n.name = fs::path(n.path).filename().string();
 
-    fs::path dest_dir("res/sounds");
-    fs::path dest_path = dest_dir / filename;
+    auto insert_pos = binds.end();
 
-    try {
-        if (!fs::exists(dest_dir)) {
-            fs::create_directories(dest_dir);
-        }
-
-        fs::copy_file(src_path, dest_path, fs::copy_options::overwrite_existing);
-        log_info("core", "copied " + dest_path.string());
-
-        sound_bind n;
-        n.path = filename;
-        n.binds_str = "None";
-        n.debounce = false;
-
-        auto insert_pos = binds.end();
-
-        if (!binds.empty()) {
-            insert_pos = binds.end() - 1;
-        }
-
-        auto new_elem_it = binds.insert(insert_pos, std::move(n));
-        btns.clear();
-        for (auto& b : binds) {
-            button::create(b);
-        }
-
-        save_soundmap();
-
-        log_info("core", "added " + filename + " to binds");
+    if (!binds.empty()) {
+        insert_pos = binds.end() - 1;
     }
-    catch (const fs::filesystem_error& e) {
-        log_err("core", "error: " + std::string(e.what()), true);
-    }
-}
 
-
-void draw_list(sf::RenderWindow& win, int offset_y) {
-    int index = 0;
-    int w = 416;
-    int h = 32;
-    int padding = 24;
-
-    int initial_offset = (512-w)/2;
-    int prev_y = initial_offset + offset_y;
-
+    auto new_elem_it = binds.insert(insert_pos, std::move(n));
+    btns.clear();
     for (auto& b : binds) {
-        int x = 256 - w / 2;
-        int y = prev_y + (index * (h + padding));
-        b.spr.setPosition(x, y);
-        win.draw(b.spr);
-        index++;
-    }
-}
-void draw_gui(sf::RenderWindow& win, float curr_scroll, sf::Sprite hud_s, sf::Sprite hud2_s, float hud2_y, float dt) {
-    win.clear(sf::Color(1, 0, 0));
-
-    draw_list(win, static_cast<int>(curr_scroll));
-
-    win.draw(hud_s);
-
-    hud2_s.setPosition(0, hud2_y);
-    win.draw(hud2_s);
-    win.display();
-}
-void init_binds_sprites(sf::Font& font) {
-    int index = 0;
-    for (auto& b : binds) {
-        sf::ContextSettings st;
-        st.antialiasingLevel = 8;
-        sf::RenderTexture temp_rtex;
-
-        if (!temp_rtex.create(416, 32,st)) continue;
-        temp_rtex.clear(sf::Color::Transparent);
-        temp_rtex.setSmooth(true);
-
         button::create(b);
-
-        if (b.path != "add new one") {
-            sf::Color clr1;
-            sf::Color clr2;
-            sf::Color clr3;
-            sf::Color clr4;
-            sf::Color clr5;
-            sf::Color clr6;
-            if (b.path != "toggle" && b.path != "vc toggle" && b.path != "stop" && b.path != "add new one" && b.path != "voice chat") {
-                clr1 = sf::Color(255, 255, 255);
-                clr2 = sf::Color(150, 150, 150);
-                clr3 = sf::Color(150, 150, 150);
-                clr4 = sf::Color(50, 50, 50);
-                clr5 = sf::Color(50, 50, 50);
-                clr6 = sf::Color(230, 230, 230);
-            }
-            else {
-                clr3 = sf::Color(255, 255, 255);
-                clr4 = sf::Color(150, 150, 150);
-                clr1 = sf::Color(150, 150, 150);
-                clr2 = sf::Color(50, 50, 50);
-                clr6 = sf::Color(50, 50, 50);
-                clr5 = sf::Color(230, 230, 230);
-            }
-            draw_round_rect(temp_rtex, 16, sf::Vector2i(0, 0), sf::Vector2i(416, 32), clr1, clr2);
-
-            sf::Text text;
-            text.setFont(font);
-            text.setCharacterSize(16);
-
-            sf::FloatRect tx_rect;
-
-            text.setString(b.binds_str);
-
-            tx_rect = text.getGlobalBounds();
-
-            int key_w = tx_rect.width + 16;
-            text.setPosition(416 - key_w, 6);
-            text.setFillColor(clr6);
-            draw_round_rect(temp_rtex, 16, sf::Vector2i(416 - 12 - key_w, 4), sf::Vector2i(key_w + 8, 24), clr3, clr4);
-            temp_rtex.draw(text);
-
-            text.setFillColor(clr5);
-            std::string title = sf::String::fromUtf8(b.path.begin(), b.path.end());
-            text.setString(title);
-            tx_rect = text.getGlobalBounds();
-
-            float max_text_width = 416.0f - 8.0f - 20.0f - key_w;
-
-            if (tx_rect.width > max_text_width) {
-                while (!title.empty() && text.getGlobalBounds().width > max_text_width) {
-                    title.pop_back();
-                    text.setString(title + "...");
-                }
-                title += "...";
-            }
-
-            text.setString(title);
-            text.setPosition(8, 6);
-            temp_rtex.draw(text);
-        }
-        else {
-            draw_round_rect(temp_rtex, 16, sf::Vector2i(0, 0), sf::Vector2i(416, 32), sf::Color(255, 255, 255), sf::Color(150, 150, 150));
-            draw_round_rect(temp_rtex, 12, sf::Vector2i(4, 4), sf::Vector2i(408, 24), sf::Color(0, 0, 0), sf::Color(0, 0, 0));
-
-            sf::Text text;
-            text.setFont(font);
-            text.setString("add a new one");
-            text.setCharacterSize(16);
-            text.setFillColor(sf::Color::White);
-
-            sf::FloatRect tx_rect;
-            tx_rect = text.getGlobalBounds();
-            text.setPosition(416/2 - tx_rect.width/2, 6);
-            temp_rtex.draw(text);
-        }
-
-        temp_rtex.display();
-
-        b.tex = temp_rtex.getTexture();
-        b.tex.setSmooth(true);
-
-        b.spr.setTexture(b.tex);
-        index += 1;
     }
-}
 
-sf::Font mont_sb;
+    save_soundmap();
+
+    log_info("core", "added " + src_path.string() + " to binds");
+}
 
 void gui_thread_worker() {
     float scroll_target = 0;
@@ -673,14 +612,14 @@ void gui_thread_worker() {
 
     float hud2_y = -118.f;
 
-    sf::Texture hud; hud.loadFromFile("res/hud.png");
+    sf::Texture hud; hud.loadFromMemory(res::src_drawings_hud_png, res::src_drawings_hud_png_len);
     sf::Sprite hud_s(hud);
 
-    sf::Texture hud2; hud2.loadFromFile("res/hud2.png");
+    sf::Texture hud2; hud2.loadFromMemory(res::src_drawings_hud2_png, res::src_drawings_hud2_png_len);
     sf::Sprite hud2_s(hud2);
     hud2_s.setPosition(0, hud2_y);
 
-    mont_sb.loadFromFile("res/fonts/mont_sb.ttf");
+    mont_sb.loadFromMemory(res::src_fonts_mont_sb_ttf, res::src_fonts_mont_sb_ttf_len);
 
     bool win_debounce = false;
 
@@ -698,7 +637,6 @@ void gui_thread_worker() {
         else if (!win_debounce) {
             win.create(sf::VideoMode(512, 512), "oxygenpad", sf::Style::Close, st);
 
-            //win.setFramerateLimit(100);
             win.setVerticalSyncEnabled(true);
             win_debounce = true;
 
@@ -708,12 +646,11 @@ void gui_thread_worker() {
 
             win.requestFocus();
 
-            draw_gui(win, curr_scroll, hud_s, hud2_s, hud2_y, dt);
-        }
+            if (icon.loadFromMemory(res::src_drawings_icon_png, res::src_drawings_icon_png_len)) {
+                win.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+            }
 
-        sf::Image icon;
-        if (icon.loadFromFile("res/icon.png")) {
-            win.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+            draw_gui(win, curr_scroll, hud_s, hud2_s, hud2_y, dt);
         }
 
         while (win.isOpen() && g_gui_thread_running) {
@@ -757,11 +694,13 @@ void gui_thread_worker() {
                                     temp->binds_str = "...";
                                     bind_to_edit->binds.clear();
                                     core_enabled = false;
+                                    play_resource_to_default_device(&g_context, res::src_sounds_ui_edit_wav, res::src_sounds_ui_edit_wav_len);
                                 }
                             }
                             else {
                                 add_new_sound();
                                 init_binds_sprites(mont_sb);
+                                play_resource_to_default_device(&g_context, res::src_sounds_ui_add_bind_wav, res::src_sounds_ui_add_bind_wav_len);
                             }
                         }
                         if (temp->path != "voice chat" && temp->path != "vc toggle" && temp->path != "toggle" && temp->path != "stop" && temp->path != "add new one") {
@@ -780,6 +719,7 @@ void gui_thread_worker() {
                                     binds.end()
                                 );
                                 save_soundmap();
+                                play_resource_to_default_device(&g_context, res::src_sounds_ui_delete_bind_wav, res::src_sounds_ui_delete_bind_wav_len);
                             }
                         }
                         init_binds_sprites(mont_sb);
@@ -812,6 +752,7 @@ void gui_thread_worker() {
                     bind_to_edit = nullptr;
                     core_enabled = true;
                     save_soundmap();
+                    play_resource_to_default_device(&g_context, res::src_sounds_ui_edit_end_wav, res::src_sounds_ui_edit_end_wav_len);
                 }
             }
 
@@ -827,7 +768,7 @@ void gui_thread_worker() {
             if (std::abs(hud2_target - hud2_y) < 0.1f) {
                 hud2_y = hud2_target;
             }
-            
+
             if (curr_scroll != scroll_target) {
                 draw_gui(win, curr_scroll, hud_s, hud2_s, hud2_y, dt);
             }
@@ -839,10 +780,34 @@ void gui_thread_worker() {
         win_debounce = false;
     }
 }
+
 void tray_gui(struct tray_menu* item) {
     log_info("core", "gui open request from tray");
     g_win_requested = true;
     (void)item;
+}
+
+void init_tray() {
+    static struct tray_menu menu[] = {
+        { (char*)"gui", 0, 0, tray_gui, NULL },
+        { (char*)"-", 0, 0, NULL, NULL },
+        { (char*)"stop", 0, 0, tray_stop, NULL },
+        { (char*)"-", 0, 0, NULL, NULL },
+        { (char*)"quit", 0, 0, tray_quit, NULL },
+        { NULL, 0, 0, NULL, NULL }
+    };
+
+    static struct tray tray_app = {
+        nullptr,
+        menu
+    };
+
+    if (tray_init(&tray_app) < 0) {
+        log_err("startup", "failed to init tray thing", true);
+        ma_context_uninit(&g_context);
+        return;
+    }
+
 }
 
 int main(int argc, char* argv[]) {
@@ -867,40 +832,22 @@ int main(int argc, char* argv[]) {
     freopen_s(&fp, "CONOUT$", "w", stderr);
     freopen_s(&fp, "CONIN$", "r", stdin);
     std::ios::sync_with_stdio(true);
-    log_info("startup - init", "attached to vs debug thing");
+    log_info("startup - init", "attached to console");
 #endif
 #endif
 
 
     log_info("startup", "starting oxygenpad "s + PROG_VER);
 
+    init_tray();
     check_for_soundmap();
-
-    struct tray_menu menu[] = {
-        { (char*)"gui", 0, 0, tray_gui, NULL },
-        { (char*)"-", 0, 0, NULL, NULL },
-        { (char*)"stop", 0, 0, tray_stop, NULL },
-        { (char*)"-", 0, 0, NULL, NULL },
-        { (char*)"quit", 0, 0, tray_quit, NULL },
-        { NULL, 0, 0, NULL, NULL }
-    };
-
-    struct tray tray_app = {
-        (char*)"res/icon.ico",
-        menu
-    };
-
-    if (tray_init(&tray_app) < 0) {
-        log_err("startup", "failed to init tray thing", true);
-        ma_context_uninit(&g_context);
-        return -1;
-    }
+    check_for_updates(PROG_VER);
 
     ma_result result;
 
     result = ma_context_init(NULL, 0, NULL, &g_context);
     if (result != MA_SUCCESS) {
-        log_err("startup", "miniaudio context initialization fail", true);
+        log_err("startup", "miniaudio context init fail", true);
         return -1;
     }
 
@@ -926,8 +873,6 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    bool hotkey_debounce = false;
-
     std::thread gui_thread(gui_thread_worker);
 
     while (tray_loop(0) == 0) {
@@ -940,7 +885,7 @@ int main(int argc, char* argv[]) {
                 if (all_keys_pressed) {
                     if (!k.debounce) {
                         if (core_enabled) {
-                            play_sound_to_both_devices(&g_context, "res/sounds/" + k.path);
+                            play_sound_to_both_devices(&g_context, k.path);
                             k.debounce = true;
                             if (core_vc_enabled) {
                                 simulate_key_event(vc_key, true);
@@ -957,25 +902,33 @@ int main(int argc, char* argv[]) {
                     if (!k.debounce) {
                         if (k.path == "stop" && core_enabled) {
                             stop_last_sound();
-                            if (snds.size() > 0){
-                                simulate_key_event(vc_key, false);
-                            }
+                            simulate_key_event(vc_key, false);
                             log_info("core", "stop from keyboard");
                         }
                         if (k.path == "toggle") {
                             core_enabled = !core_enabled;
                             log_info("core", "set core_enabled var to " + std::to_string(core_enabled));
+                            if (core_enabled) {
+                                play_resource_to_default_device(&g_context, res::src_sounds_ui_toggle_on_wav, res::src_sounds_ui_toggle_on_wav_len);
+                            }
+                            else {
+                                play_resource_to_default_device(&g_context, res::src_sounds_ui_toggle_off_wav, res::src_sounds_ui_toggle_off_wav_len);
+                            }
                         }
                         if (k.path == "vc toggle") {
                             core_vc_enabled = !core_vc_enabled;
                             log_info("core", "set core_vc_enabled var to " + std::to_string(core_vc_enabled));
                             if (core_vc_enabled) {
-                                if (snds.size() > 0) {
-                                    simulate_key_event(vc_key, true);
-                                }
+                                simulate_key_event(vc_key, true);
                             }
                             else {
                                 simulate_key_event(vc_key, false);
+                            }
+                            if (core_vc_enabled) {
+                                play_resource_to_default_device(&g_context, res::src_sounds_ui_vc_toggle_on_wav, res::src_sounds_ui_vc_toggle_on_wav_len);
+                            }
+                            else {
+                                play_resource_to_default_device(&g_context, res::src_sounds_ui_vc_toggle_off_wav, res::src_sounds_ui_vc_toggle_off_wav_len);
                             }
                         }
                         k.debounce = true;

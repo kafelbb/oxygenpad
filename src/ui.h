@@ -26,6 +26,7 @@
 
 struct sound_bind {
 	std::string path;
+	std::string name;
 	std::vector<sf::Keyboard::Key> binds;
 	std::string binds_str;
 	bool debounce = false;
@@ -47,5 +48,11 @@ public:
 };
 
 extern std::vector<std::unique_ptr<button>> btns;
+extern sf::Font mont_sb;
+extern sf::Image icon;
+
+void draw_list(sf::RenderWindow& win, int offset_y);
+void draw_gui(sf::RenderWindow& win, float curr_scroll, sf::Sprite hud_s, sf::Sprite hud2_s, float hud2_y, float dt);
+void init_binds_sprites(sf::Font& font);
 
 sound_bind* check_buttons(std::vector<std::unique_ptr<button>>& btns, int mx, int my, int yoffset);
