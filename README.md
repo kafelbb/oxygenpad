@@ -34,7 +34,7 @@ A lightweight FOSS alternative to Soundpad
 - Download and install the latest version of [VB-AUDIO Voicemeeter](https://vb-audio.com/Voicemeeter/)
 - Configure VB-AUDIO Voicemeeter
 - Download the latest release of the oxygenpad
-- Unzip it into any directory
+- Move it into desired folder
 #### Step 1. Getting VB-AUDIO Voicemeeter 
 1. Go to [VB-AUDIO Voicemeeter download page](https://vb-audio.com/Voicemeeter/)
 2. Download the .zip archive
@@ -48,12 +48,12 @@ A lightweight FOSS alternative to Soundpad
 4. Set your mic in desired app (e.g., Discord, TF2, Steam) to be `Voicemeeter Out B1`
 #### Step 3. Downloading the app
 1. Go to the [Releases](https://github.com/kafelbb/oxygenpad/releases) page.
-2. Grab .zip (or .7z) archive from the latest release
-3. Unzip it into any folder (e.g `Desktop/apps/`)
+2. Grab latest version of the prog
+3. Move it into any folder (e.g `Desktop/apps/`)
 4. Create a shortcut to the prog and move it to your desktop (or Start Menu)
 
 ### On Linux:
-Currently there is zero Linux support. But I am planning to add it in the future. I will look into Pulsemeeter support.
+Currently there is zero Linux support. But I am planning to add it in the future. I will look into adding Pulsemeeter support.
 
 
 ## Compiling
