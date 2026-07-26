@@ -1,2 +1,5 @@
-a001
-https://github.com/kafelbb/oxygenpad/releases/download/alpha/a001-win-x64.7z
+a002
+https://github.com/kafelbb/oxygenpad/releases/download/a002/oxygenpad.exe
+alpha 0.0.2 changelog:
+added foo
+removed bar
