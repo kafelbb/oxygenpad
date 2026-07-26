@@ -20,6 +20,9 @@ namespace res {
 	extern const unsigned char src_drawings_icon_png[];
 	extern const unsigned int src_drawings_icon_png_len;
 
+	extern const unsigned char src_drawings_icon_ico[];
+	extern const unsigned int src_drawings_icon_ico_len;
+
 	//ui sounds
 	extern const unsigned char src_sounds_ui_add_bind_wav[];
 	extern const unsigned int src_sounds_ui_add_bind_wav_len;

@@ -19,6 +19,7 @@ find_package(CURL REQUIRED)
 
 file(GLOB_RECURSE RESOURCE_FILES 
     "${CMAKE_CURRENT_SOURCE_DIR}/src/drawings/*.png"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/drawings/*.ico"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/fonts/*.ttf"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/sounds/*.wav"
 ) 

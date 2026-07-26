@@ -46,7 +46,9 @@ using namespace std::string_literals;
 namespace fs = std::filesystem;
 
 #ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #define NOMINMAX
 #include <windows.h>
 
@@ -105,7 +107,7 @@ void simulate_key_event(sf::Keyboard::Key sf_key, bool is_down) {}
 #include "libs/tray.h"
 
 
-constexpr const char* PROG_VER = "a001";
+constexpr const char* PROG_VER = "a002";
 
 bool core_enabled = true;
 bool core_vc_enabled = true;
@@ -798,7 +800,7 @@ void init_tray() {
     };
 
     static struct tray tray_app = {
-        nullptr,
+        (char*)"#101",
         menu
     };
 
@@ -808,6 +810,43 @@ void init_tray() {
         return;
     }
 
+    HICON hIcon = (HICON)LoadImageA(
+        GetModuleHandle(NULL),
+        MAKEINTRESOURCE(101),
+        IMAGE_ICON,
+        GetSystemMetrics(SM_CXSMICON),
+        GetSystemMetrics(SM_CYSMICON),
+        LR_DEFAULTCOLOR
+    );
+
+    if (hIcon != NULL) {
+        HWND hwnd = NULL;
+        while ((hwnd = FindWindowExA(NULL, hwnd, NULL, NULL)) != NULL) {
+            DWORD window_pid = 0;
+            GetWindowThreadProcessId(hwnd, &window_pid);
+
+            if (window_pid == GetCurrentProcessId() && !IsWindowVisible(hwnd)) {
+                NOTIFYICONDATA nid;
+                ZeroMemory(&nid, sizeof(nid));
+                nid.cbSize = sizeof(NOTIFYICONDATA);
+                nid.hWnd = hwnd;
+                nid.uID = 1;
+                nid.uFlags = NIF_ICON;
+                nid.hIcon = hIcon;
+
+                Shell_NotifyIconA(NIM_MODIFY, &nid);
+
+                nid.uID = 0;
+                Shell_NotifyIconA(NIM_MODIFY, &nid);
+            }
+        }
+
+        SendMessage(GetConsoleWindow(), WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+        SendMessage(GetConsoleWindow(), WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+    }
+    else {
+        log_err("init", "can't create hicon");
+    }
 }
 
 int main(int argc, char* argv[]) {
