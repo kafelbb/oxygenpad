@@ -370,4 +370,8 @@ h3{
         margin: 0 auto; /* Выравнивание строго по центру экрана */
         box-sizing: border-box;
     }
+    .wrapper2{
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
 }
