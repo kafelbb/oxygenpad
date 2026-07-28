@@ -17,7 +17,7 @@ A lightweight FOSS alternative to Soundpad
 1. Click on it
 1. Click on "gui" button
 ### Adding your sounds
-1. Scroll down and click the **add a new one** button ![boo](src/repo/screen1.png)
+1. Scroll down and click the **add a new one** button <br/> ![boo](src/repo/screen1.png)
 1. Select your `.wav` or `.mp3` or `.flac` audio file
 1. Edit keybind for it
  > *to be exact:* this copies chosen file into oxygenpad's `res/sounds/` directory
