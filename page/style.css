@@ -241,6 +241,13 @@ h3{
     z-index: -1;
     filter: blur(0.2px);
 }
+.thing67{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
 .checkerboard {
     width: 100%;
     height: 100%;
@@ -270,5 +277,82 @@ h3{
 
     100% {
         background-position: 120px 120px, 120px 180px, 180px 60px, 60px 120px;
+    }
+}
+@media (max-width: 1000px), (max-height: 950px) {
+    /* 1. Включаем скролл на самой странице и сбрасываем центрирование body */
+    body {
+        overflow-y: auto;
+        align-items: flex-start;
+        display: block;
+        padding: 20px 0; /* Небольшой отступ сверху и снизу, чтобы сайт не прилипал к краям */
+    }
+    .checkerboard, .wrapper{
+        height: 3000px;
+    }
+    /* 2. Превращаем главный темный контейнер в обычный блочный элемент */
+    .dark_gray_thing {
+        position: absolute !important; /* !important гарантирует отмену top из основного кода */
+        top: 48px !important;
+        bottom: auto !important;
+        left: 48px !important;
+        right: 48px !important;
+        width: auto;
+        max-width: 1000px;
+        height: auto;
+        max-height: none;
+        margin: 0 auto; /* Выравнивание строго по центру экрана */
+        box-sizing: border-box;
+    }
+    .dl {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+        font-size: 1.025rem;
+    }
+    /* 3. Сбрасываем абсолютные координаты внутренних оберток */
+    .thing {
+        position: relative !important;
+        top: 0 !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 2rem;
+    }
+
+    /* 4. Перестраиваем левую и правую колонки */
+    .thing2 {
+        flex-direction: column;
+        height: auto;
+        gap: 2rem;
+    }
+
+    /* 5. Сбрасываем высоту у всех контентных блоков */
+    .left_thing,
+    .right_thing,
+    .thing3,
+    .about,
+    .black_thing,
+    .thing4,
+    .thing5 {
+        height: auto;
+    }
+
+    /* 6. Минимальная высота для карточек */
+    .black_thing {
+        font-size: 1.025rem;
+    }
+    h3 {
+        font-size: 1.025rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    h5 {
+        font-size: 1.25rem;
+    }
+    header {
+        font-size: 1.25rem;
     }
 }
