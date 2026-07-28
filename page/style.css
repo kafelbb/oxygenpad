@@ -278,15 +278,13 @@ h3{
     }
 }
 @media (max-width: 1000px), (max-height: 950px) {
-    /* 1. Включаем скролл на самой странице и сбрасываем центрирование body */
     body {
         overflow-y: auto;
         align-items: flex-start;
-        padding: 20px 0; /* Небольшой отступ сверху и снизу, чтобы сайт не прилипал к краям */
+        padding: 20px 0;
     }
-    /* 2. Превращаем главный темный контейнер в обычный блочный элемент */
     .dark_gray_thing {
-        position: absolute !important; /* !important гарантирует отмену top из основного кода */
+        position: absolute !important;
         top: 48px !important;
         bottom: auto !important;
         left: 48px !important;
@@ -295,7 +293,7 @@ h3{
         max-width: 1000px;
         height: auto;
         max-height: none;
-        margin: 0 auto; /* Выравнивание строго по центру экрана */
+        margin: 0 auto;
         box-sizing: border-box;
     }
     .dl {
@@ -303,7 +301,6 @@ h3{
         padding-bottom: 1rem;
         font-size: 1.025rem;
     }
-    /* 3. Сбрасываем абсолютные координаты внутренних оберток */
     .thing {
         position: relative !important;
         top: 0 !important;
@@ -316,18 +313,16 @@ h3{
     }
     .wrapper {
         width: 500%;
-        display: block; /* Убираем flex-центрирование, чтобы контент не улетал вверх */
+        display: block;
         overflow: hidden;
         position: relative;
     }
-    /* 4. Перестраиваем левую и правую колонки */
     .thing2 {
         flex-direction: column;
         height: auto;
         gap: 2rem;
     }
 
-    /* 5. Сбрасываем высоту у всех контентных блоков */
     .left_thing,
     .right_thing,
     .thing3,
@@ -338,7 +333,6 @@ h3{
         height: auto;
     }
 
-    /* 6. Минимальная высота для карточек */
     .black_thing {
         font-size: 1.025rem;
     }
@@ -358,7 +352,7 @@ h3{
 
 @media (max-width: 564px) {
     .dark_gray_thing {
-        position: absolute !important; /* !important гарантирует отмену top из основного кода */
+        position: absolute !important;
         top: 0 !important;
         bottom: auto !important;
         left: 0 !important;
@@ -367,7 +361,7 @@ h3{
         height: auto;
         padding-bottom: 12px;
         border-radius: 0;
-        margin: 0 auto; /* Выравнивание строго по центру экрана */
+        margin: 0 auto;
         box-sizing: border-box;
     }
     .wrapper2{
